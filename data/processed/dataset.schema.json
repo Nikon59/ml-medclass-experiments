@@ -1,0 +1,377 @@
+{
+  "target": "diagnosis",
+  "features": {
+    "Sex": {
+      "type": "categorical",
+      "categories": [
+        "муж",
+        "жен",
+        "MISSING"
+      ]
+    },
+    "Age": {
+      "type": "ordinal",
+      "categories": [
+        "до 20 лет",
+        "21-30",
+        "31-40",
+        "41-50",
+        "51-60",
+        "старше 60 лет",
+        "MISSING"
+      ]
+    },
+    "Ds naprav": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "да",
+        "MISSING"
+      ]
+    },
+    "time disease": {
+      "type": "ordinal",
+      "categories": [
+        "более 24 часов",
+        "до 24 часов",
+        "MISSING"
+      ]
+    },
+    "chr pancr": {
+      "type": "ordinal",
+      "categories": [
+        "есть",
+        "приступов не было",
+        "MISSING"
+      ]
+    },
+    "soput disease": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "compens": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "компенсированная",
+        "декомпенсированная",
+        "MISSING"
+      ]
+    },
+    "pain": {
+      "type": "categorical",
+      "categories": [
+        "в левом подреберье",
+        "в правом подреберье",
+        "в верхней половине",
+        "в подложечной области",
+        "опоясывающие",
+        "по всему животу",
+        "MISSING"
+      ]
+    },
+    "intensiv": {
+      "type": "ordinal",
+      "categories": [
+        "умеренная",
+        "интенсивная",
+        "MISSING"
+      ]
+    },
+    "rvota": {
+      "type": "ordinal",
+      "categories": [
+        "не было",
+        "была",
+        "MISSING"
+      ]
+    },
+    "cofe gugha": {
+      "type": "ordinal",
+      "categories": [
+        "не было",
+        "была",
+        "MISSING"
+      ]
+    },
+    "slabost": {
+      "type": "ordinal",
+      "categories": [
+        "не было",
+        "были",
+        "MISSING"
+      ]
+    },
+    "ogirenie": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "t": {
+      "type": "categorical",
+      "categories": [
+        "38,0 C и выше",
+        "37,1-37,9",
+        "нормальная (36,1 - 37,0 С)",
+        "ниже 36,0 С",
+        "MISSING"
+      ]
+    },
+    "encef": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "возбуждение, беспокойство",
+        "заторможенность",
+        "судорожный синдром",
+        "MISSING"
+      ]
+    },
+    "bled cut": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "mramor cut": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "icterus": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "hipermia face": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "Ps": {
+      "type": "ordinal",
+      "categories": [
+        "менее 80",
+        "80-99",
+        "100-120",
+        "более 120",
+        "MISSING"
+      ]
+    },
+    "AD low": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "Kollaps": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "CHDD": {
+      "type": "ordinal",
+      "categories": [
+        "16-20",
+        "21-26",
+        "более 26",
+        "MISSING"
+      ]
+    },
+    "meteorism": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "pain of adbomin": {
+      "type": "categorical",
+      "categories": [
+        "поперечно выше пупка",
+        "по левому боковому флангу",
+        "по правому боковому флангу и в",
+        "по всему животу",
+        "MISSING"
+      ]
+    },
+    "rigid of abdomi": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "поперечно выше пупка",
+        "по левому боковому флангу",
+        "по правому боковому флангу и в",
+        "по всему животу",
+        "MISSING"
+      ]
+    },
+    "s. peritonit": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "Er": {
+      "type": "categorical",
+      "categories": [
+        "норма(3,7-4,5*10^12/л)",
+        "ниже нормы",
+        "выше нормы",
+        "MISSING"
+      ]
+    },
+    "Hb": {
+      "type": "categorical",
+      "categories": [
+        "норма (110-160 г/л)",
+        "ниже нормы",
+        "выше нормы",
+        "MISSING"
+      ]
+    },
+    "L": {
+      "type": "ordinal",
+      "categories": [
+        "норма (4-9*10^9/л)",
+        "повышение до 14*10^9/л",
+        "выше 14*10^9/л",
+        "MISSING"
+      ]
+    },
+    "LII": {
+      "type": "ordinal",
+      "categories": [
+        "норма (0,3-1,5 ед.)",
+        "1,6-2,9 ед.",
+        "3,0 и более ед.",
+        "MISSING"
+      ]
+    },
+    "COE": {
+      "type": "ordinal",
+      "categories": [
+        "норма (2-10 мм/ч)",
+        "более 10 мм/ч",
+        "MISSING"
+      ]
+    },
+    "Ht": {
+      "type": "ordinal",
+      "categories": [
+        "ниже нормы (менее 42 %)",
+        "норма (42-45 %)",
+        "выше нормы (более 45 %)",
+        "MISSING"
+      ]
+    },
+    "amilase": {
+      "type": "categorical",
+      "categories": [
+        "норма",
+        "умеренная гиперамилаземия",
+        "больше нормы в 2 и более раз",
+        "MISSING"
+      ]
+    },
+    "glu": {
+      "type": "ordinal",
+      "categories": [
+        "норма (3,3-5,5 ммоль/л)",
+        "5,6-7,0 ммоль/л",
+        "более 7,0 ммоль/л",
+        "MISSING"
+      ]
+    },
+    "albumin": {
+      "type": "ordinal",
+      "categories": [
+        "ниже нормы (60,0 и менее г/л)",
+        "норма (60,1-80,0 г/л)",
+        "выше нормы (более 80,0 г/л)",
+        "MISSING"
+      ]
+    },
+    "bil": {
+      "type": "ordinal",
+      "categories": [
+        "норма (до 20,5 ммоль/л)",
+        "21,0-40,0 ммоль/л",
+        "более 40,0 ммоль/л",
+        "MISSING"
+      ]
+    },
+    "Ur": {
+      "type": "categorical",
+      "categories": [
+        "норма (до 8,4 ммоль/л)",
+        "выше нормы",
+        "MISSING"
+      ]
+    },
+    "gemolis": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "ECG": {
+      "type": "categorical",
+      "categories": [
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    },
+    "LS/cen gid": {
+      "type": "categorical",
+      "categories": [
+        "не делали",
+        "нет выпота",
+        "серозный",
+        "геморрагический",
+        "гнойный",
+        "MISSING"
+      ]
+    },
+    "LS steat": {
+      "type": "categorical",
+      "categories": [
+        "не делали",
+        "нет",
+        "есть",
+        "MISSING"
+      ]
+    }
+  },
+  "missing_value": "MISSING",
+  "missing_value_in_categories": true
+}
