@@ -1,11 +1,16 @@
 # ml-medclass-experiments
 
-Классификация структурированных клинических медицинских данных (дифференциальная диагностика острого панкреатита: отёчный панкреатит / панкреонекроз). Репозиторий содержит исследовательские Jupyter Notebooks, библиотеку модулей (`src/`) и интерфейс командной строки (`cli.py`) для автоматизации обучения, подбора гиперпараметров, кросс-валидации и экспорта моделей в форматы ONNX и Joblib.
+Классификация структурированных клинических медицинских данных (дифференциальная диагностика острого панкреатита: отёчный панкреатит / панкреонекроз). Репозиторий содержит исследовательские Jupyter Notebooks, модульную библиотеку компонентов (`src/`), интерфейс командной строки (`cli.py`), а также настроенный CI/CD-пайплайн для сборки автономных исполняемых пакетов под Linux и Windows.
+
+---
 
 ## Структура репозитория
 
-```
+```text
 .
+├── .github/
+│   └── workflows/
+│       └── build-release.yml      # CI/CD: параллельная сборка релизов Linux и Windows
 ├── notebooks/                     # Исследовательские ноутбуки (EDA, гипотезы, отбор признаков)
 │   ├── 01_eda.ipynb
 │   ├── 02_feature_analysis.ipynb
@@ -16,93 +21,123 @@
 │   ├── 07_comparison.ipynb
 │   └── 08_export_import.ipynb
 ├── configs/
-│   └── tuning.yaml                # Сетки гиперпараметров для моделей
+│   └── tuning.yaml                # Сетки гиперпараметров для оптимизации
 ├── data/
-│   ├── raw/                       # Исходные файлы (algorithm.txt, features.csv, value_features.csv)
-│   └── processed/                 # Очищенные датасеты (dataset.parquet, dataset.csv, schema.json)
+│   ├── raw/                       # Исходные медицинские протоколы и таблицы признаков
+│   └── processed/                 # Сформированные выборки (dataset.parquet, schema.json)
 ├── results/                       # Артефакты: leaderboard.csv, best_params_*.json, .onnx, .joblib
-├── src/                           # Библиотека модулей
-│   ├── dataset/                   # Загрузка и сборка датасетов (loader.py, dataset_builder.py)
-│   ├── models/                    # Реестр моделей на duck typing (registry.py)
-│   ├── metrics/                   # Реестр метрик (registry.py)
-│   ├── tuning/                    # Подбор гиперпараметров (tuner.py)
-│   ├── export/                    # Экспорт и валидация через ONNX Runtime (exporter.py)
-│   ├── preprocessors/             # Препроцессоры признаков
-│   └── validators/                # Стратегии кросс-валидации
-├── tests/                         # Набор smoke-тестов на pytest
-├── cli.py                         # Консольный интерфейс
-├── requirements.txt               # Зависимости проекта
-└── pytest.ini                     # Конфигурация pytest
+├── src/                           # Модули пайплайна
+│   ├── dataset/                   # Загрузка и валидация данных (loader.py, dataset_builder.py)
+│   ├── models/                    # Duck-typing реестр алгоритмов (registry.py)
+│   ├── metrics/                   # Расширяемый реестр метрик качества (registry.py)
+│   ├── tuning/                    # Модуль подбора гиперпараметров (tuner.py)
+│   ├── export/                    # Сериализация и валидация ONNX/Joblib (exporter.py)
+│   ├── preprocessors/             # Препроцессинг и нормализация признаков
+│   └── validators/                # Стратегии стратифицированной кросс-валидации
+├── tests/                         # Модульные и интеграционные тесты на pytest
+├── cli.py                         # Консольный интерфейс приложения
+├── requirements.txt               # Зависимости Python
+└── pytest.ini                     # Конфигурация запуска тестов
 ```
+
+---
 
 ## Рабочий процесс
 
-1. **Исследования в Jupyter Notebooks (`notebooks/`)**:
-   Разведочный анализ данных, проверка статистических гипотез и отбор признаков выполняются в ноутбуках. Отдельный пакет преобразования признаков отсутствует; исследователь формирует выборки непосредственно в интерактивной среде.
+1. **Исследования в Jupyter Notebooks (`notebooks/`):**  
+   Разведочный анализ данных (EDA), статистическая проверка гипотез и отбор признаков ведутся в интерактивной среде ноутбуков.
+2. **Фиксация данных (`data/processed/`):**  
+   Очищенные выборки сохраняются в формате Parquet (`dataset.parquet`) или CSV с обязательной генерацией схемы валидации типов (`schema.json`).
+3. **Автоматизация через CLI (`cli.py`):**  
+   Консольные команды берут подготовленный датасет, запускают кросс-валидацию, подбор гиперпараметров, обучение моделей и экспорт графов в формат ONNX с проверкой численной идентичности выходов в `onnxruntime`.
 
-2. **Сохранение данных (`data/processed/`)**:
-   Очищенные и сформированные выборки сохраняются в `data/processed/<name>.parquet` или `data/processed/<name>.csv`. Сопутствующая схема категорий сохраняется в `.schema.json`.
-
-3. **Автоматизация через CLI и библиотеку (`cli.py`, `src/`)**:
-   Пайплайны принимают путь к сформированному датасету через параметр `--dataset`. Модули выполняют кросс-валидацию, подбор гиперпараметров и экспорт моделей с автоматической валидацией эквивалентности выходов в ONNX Runtime.
+---
 
 ## Установка и запуск
 
+### Вариант А. Автономные бинарные пакеты (без установки Python)
+
+Скомпилированные пакеты содержат все C++ и Python библиотеки (CatBoost, XGBoost, LightGBM, ONNX Runtime). Доступны на странице **[GitHub Releases](https://github.com/Nikon59/ml-medclass-experiments/releases)**.
+
+* **Linux (x86_64):**
+  ```bash
+  tar -xzf medclass-cli-linux-x64.tar.gz
+  ./medclass-cli/medclass-cli --help
+  ```
+
+* **Windows (x64):**
+  ```powershell
+  Expand-Archive medclass-cli-windows-x64.zip -DestinationPath .
+  .\medclass-cli\medclass-cli.exe --help
+  ```
+
+> **Важно:** Запуск бинарника должен производиться из корневой директории проекта, где расположены каталоги `data/` и `configs/`.
+
+---
+
+### Вариант Б. Запуск из исходного кода (Python 3.10+)
+
 ```bash
-# Клонирование и переход в каталог проекта
+# 1. Клонирование репозитория
+git clone [https://github.com/Nikon59/ml-medclass-experiments.git](https://github.com/Nikon59/ml-medclass-experiments.git)
 cd ml-medclass-experiments
 
-# Создание и активация виртуального окружения
+# 2. Создание и активация виртуального окружения
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate       # На Windows: .venv\Scripts\Activate.ps1
 
-# Установка зависимостей
+# 3. Установка зависимостей
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# Проверка установленных компонентов
+# 4. Проверка готовности системы
 python cli.py list
 ```
 
-## Использование CLI (`cli.py`)
+---
 
-Все команды поддерживают значения по умолчанию: при запуске без аргументов используется `data/processed/dataset.parquet` (или `dataset.csv`), модель `catboost` и стандартный набор метрик.
+## Использование CLI
 
-### 1. Просмотр доступных моделей и метрик (`list`)
-Выводит зарегистрированные модели, их классы и параметры по умолчанию, а также список метрик:
+> При использовании скомпилированного бинарника замените `python cli.py` на путь к утилите: `./medclass-cli/medclass-cli` (Linux) или `.\medclass-cli\medclass-cli.exe` (Windows).
+
+Все команды используют значения по умолчанию: датасет `data/processed/dataset.parquet` (или `dataset.csv`), алгоритм `catboost` и базовый пул диагностических метрик.
+
+### 1. Просмотр реестров (`list`)
+Выводит список доступных моделей с их параметрами по умолчанию и перечень зарегистрированных метрик:
 ```bash
 python cli.py list
 ```
 
 ### 2. Сборка датасета из сырых файлов (`prep-data`)
-Формирует чистый датасет и JSON-схему из сырых данных:
+Преобразует сырые медицинские таблицы, очищает пропуски и строит схему признаков:
 ```bash
-# Сборка с параметрами по умолчанию:
+# Сборка по путям по умолчанию
 python cli.py prep-data
 
-# Сборка с указанием путей:
+# С явным указанием источников
 python cli.py prep-data --input data/raw/algorithm.txt --output data/processed/dataset.parquet
 ```
 
-### 3. Обучение и экспорт модели (`train`)
-Обучает классификатор, выводит метрики на отложенной выборке, сохраняет артефакты в Joblib и ONNX, и проверяет эквивалентность предсказаний в ONNX Runtime (`np.testing.assert_allclose(py_probs, onnx_probs, atol=1e-5)`):
+### 3. Обучение и экспорт (`train`)
+Обучает классификатор, считает метрики на тестовой выборке, сохраняет модель в Joblib и ONNX, после чего валидирует предсказания через ONNX Runtime (`np.testing.assert_allclose(py_probs, onnx_probs, atol=1e-5)`):
 ```bash
-# Обучение модели по умолчанию:
+# Базовый запуск:
 python cli.py train
 
-# Обучение с параметрами из файла тюнинга:
+# Обучение модели с параметрами из JSON-файла тюнинга:
 python cli.py train --model logreg --params-file results/best_params_logreg.json
 
-# Обучение с явным указанием путей экспорта:
+# Обучение с кастомными путями сохранения артефактов:
 python cli.py train --model catboost --export-onnx results/catboost.onnx --export-joblib results/catboost.joblib
 ```
 
-### 4. Бенчмарк моделей (`benchmark`)
-Запускает стратифицированную кросс-валидацию моделей, рассчитывает запрошенные метрики и сохраняет таблицу результатов:
+### 4. Сравнительный бенчмарк моделей (`benchmark`)
+Запускает кросс-валидацию по всем алгоритмам реестра и формирует общую сводную таблицу качества:
 ```bash
-# Бенчмарк всех моделей по умолчанию:
+# Бенчмарк со стандартными настройками:
 python cli.py benchmark
 
-# Бенчмарк выбранных моделей:
+# Детальный запуск по выбранным моделям и метрикам:
 python cli.py benchmark \
   --models catboost xgboost lightgbm logreg random_forest \
   --metrics roc_auc f1_macro accuracy recall precision \
@@ -110,27 +145,29 @@ python cli.py benchmark \
   --output results/leaderboard.csv
 ```
 
-### 5. Подбор гиперпараметров (`tune`)
-Выполняет подбор параметров по сетке из `configs/tuning.yaml` через `GridSearchCV` или `RandomizedSearchCV`:
+### 5. Оптимизация гиперпараметров (`tune`)
+Выполняет `GridSearchCV` или `RandomizedSearchCV` по сеткам из `configs/tuning.yaml`:
 ```bash
 # Grid search для CatBoost:
 python cli.py tune --model catboost
 
-# Random search для Logistic Regression:
+# Random search с ограничением количества итераций:
 python cli.py tune --model logreg --search-type random --n-iter 20 --cv 5 --output results/
 ```
-Результаты сохраняются в `results/best_params_<model>.json`.
+Лучшие параметры сохраняются в `results/best_params_<model>.json`.
 
-### 6. Проверка ONNX модели (`verify-onnx`)
-Выполняет проверку графа ONNX, типов и размерностей входов/выходов, замеряет задержку инференса и сверяет предсказания с соответствующей Joblib-моделью:
+### 6. Верификация ONNX-графа (`verify-onnx`)
+Проверяет целостность графа, соответствие размерностей тензоров, замеряет скорость инференса и сверяет результаты с Joblib-сериализацией:
 ```bash
 python cli.py verify-onnx --onnx results/catboost.onnx
 ```
 
+---
+
 ## Руководство разработчика
 
 ### Регистрация новой модели
-Модели не требуют наследования от тяжелых абстрактных классов. Используется duck typing Scikit-Learn API (`fit`, `predict`, `predict_proba`). Регистрация выполняется декоратором `@register_model`:
+Система использует утиную типизацию (Scikit-Learn API: методы `fit`, `predict`, `predict_proba`). Модель подключается через декоратор `@register_model`:
 
 ```python
 from sklearn.neighbors import KNeighborsClassifier
@@ -143,11 +180,10 @@ from src.models.registry import register_model
 class RegisteredKNN(KNeighborsClassifier):
     pass
 ```
+После этого модель сразу становится доступна во всех командах CLI (`train`, `benchmark`, `tune`).
 
-После регистрации модель доступна во всех командах CLI (`train`, `benchmark`, `tune`) и через функцию `get_model("knn")`.
-
-### Регистрация новой метрики
-Функции расчета метрик регистрируются через декоратор `@register_metric`:
+### Регистрация пользовательской метрики
+Метрики добавляются через реестр `@register_metric`:
 
 ```python
 import numpy as np
@@ -158,17 +194,22 @@ def compute_error_rate(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarra
     return float(np.mean(y_true != y_pred))
 ```
 
-После регистрации метрика доступна в аргументе `--metrics` командной строки и в функции `calculate_metrics(..., metric_names=["error_rate"])`.
+---
 
-## Тестирование
+## Тестирование и автоматическая сборка
 
-Запуск тестов:
+Запуск набора тестов:
 ```bash
 pytest -v tests/
 ```
 
-Набор тестов проверяет:
-- Реестр моделей и Scikit-Learn duck typing.
-- Вычисление стандартных и кастомных метрик в бинарном и многоклассовом режимах.
-- Экспорт в Joblib и ONNX с автовалидацией в ONNX Runtime (Scikit-Learn, LightGBM, XGBoost, CatBoost).
-- Все команды интерфейса командной строки (`list`, `prep-data`, `tune`, `benchmark`, `train`, `verify-onnx`).
+Тестовый контур контролирует:
+- Корректность duck-typing оберток всех классификаторов.
+- Расчет метрик в бинарном и многоклассовом режимах.
+- Экспорт в Joblib и ONNX с пороговой валидацией точности в ONNX Runtime.
+- Выполнение всех команд CLI (`list`, `prep-data`, `train`, `benchmark`, `tune`, `verify-onnx`).
+
+### Автоматический релиз бинарников (CI/CD)
+Проект настроен на сборку кроссплатформенных артефактов через GitHub Actions:
+* При отправке тега версии (`git tag v1.1.0 && git push origin v1.1.0`) запускается параллельная сборка под **Ubuntu 22.04** и **Windows Latest**.
+* Скомпилированные архивы автоматически прикрепляются к созданному релизу на GitHub в раздел Assets.
